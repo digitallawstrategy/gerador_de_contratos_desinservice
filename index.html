@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gerador de Contrato - Desinservice</title>
+    <style>
+        :root {
+            /* --- Apple System Palette --- */
+            --app-bg: #F2F2F7;          /* System Gray 6 */
+            --sidebar-bg: #FFFFFF;      /* White */
+            --card-bg: #FFFFFF;
+            --input-bg: #F2F2F7;        /* Filled Input Background */
+            --separator: #C6C6C8;       /* System Separator */
+            --text-primary: #000000;    /* Label Color */
+            --text-secondary: #3C3C4399;/* Secondary Label */
+            --brand-color: #5d9732;     /* Desinservice Green */
+            --brand-dark: #3a631e;
+            --danger: #FF3B30;          /* System Red */
+            --radius-l: 12px;
+            --radius-m: 10px;
+            
+            /* Shadows */
+            --shadow-card: 0 2px 8px rgba(0,0,0,0.04);
+            --shadow-float: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        /* --- RESET & BASE --- */
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--app-bg);
+            color: var(--text-primary);
+            margin: 0; padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Desktop: trava o corpo, rola apenas os painéis */
+        }
+
+        /* --- LAYOUT --- */
+        .app-container {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR (CONTROLES) --- */
+        .sidebar {
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            z-index: 20;
+            overflow: hidden; /* Impede que a sidebar inteira role, forçando a rolagem interna */
+        }
+
+        /* Área de Rolagem do Conteúdo da Sidebar */
+        .sidebar-scroll {
+            flex: 1; /* Ocupa todo o espaço disponível acima da action-bar */
+            overflow-y: auto; /* Habilita rolagem apenas aqui */
+            padding: 32px 24px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Logo & Header */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--separator);
+        }
+        .brand-header img {
+            max-width: 160px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Guia de Uso (Apple Callout) */
+        .guide-box {
+            background-color: var(--app-bg);
+            border-radius: var(--radius-l);
+            padding: 16px;
+            margin-bottom: 24px;
+            font-size: 11px;
+            line-height: 1.5;
+            color: var(--text-primary);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .guide-box h4 {
+            margin: 0 0 8px 0;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+        }
+        .guide-box ul { padding-left: 16px; margin: 0; }
+        .guide-box li { margin-bottom: 6px; }
+        .text-alert { color: var(--danger); font-weight: 600; }
+
+        /* --- FORMS --- */
+        .form-group { margin-bottom: 16px; }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-left: 2px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: none;
+            background-color: var(--input-bg);
+            border-radius: var(--radius-m);
+            font-size: 15px;
+            color: var(--text-primary);
+            font-family: inherit;
+            transition: all 0.2s ease;
+            -webkit-appearance: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            background-color: #fff;
+            box-shadow: 0 0 0 2px var(--brand-color);
+            outline: none;
+        }
+        
+        select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2386868B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            padding-right: 30px;
+        }
+
+        /* --- ACCORDION --- */
+        .menu-item {
+            background: #fff;
+            border-radius: var(--radius-l);
+            margin-bottom: 12px;
+            border: 1px solid rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+        
+        .menu-item.is-open {
+            border-color: var(--brand-color);
+            box-shadow: var(--shadow-card);
+        }
+
+        .menu-header {
+            padding: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            user-select: none;
+        }
+        
+        .menu-header:active { background-color: var(--input-bg); }
+
+        .menu-header span.arrow {
+            font-size: 10px;
+            color: var(--text-secondary);
+            transition: transform 0.3s;
+        }
+        .menu-item.is-open .menu-header span.arrow { transform: rotate(180deg); color: var(--brand-color); }
+
+        .menu-content {
+            display: none;
+            padding: 20px 16px;
+            border-top: 1px solid var(--separator);
+            animation: slideIn 0.2s ease-out;
+        }
+        @keyframes slideIn { from{opacity:0; transform:translateY(-5px)} to{opacity:1; transform:translateY(0)} }
+
+        /* --- FOOTER ACTION BAR (Fixed at bottom of Sidebar) --- */
+        .action-bar {
+            padding: 20px 24px;
+            background: rgba(255,255,255,0.98);
+            border-top: 1px solid rgba(0,0,0,0.1);
+            z-index: 30;
+            /* Não precisa de position sticky pois está num flex container fixo */
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--brand-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius-l);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(93, 151, 50, 0.25);
+            transition: transform 0.1s, background-color 0.2s;
+        }
+        .btn-primary:active { transform: scale(0.98); background-color: var(--brand-dark); }
+
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+        
+        .btn-secondary {
+            padding: 10px;
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+            border: none;
+            border-radius: var(--radius-m);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .btn-secondary:hover { background-color: #E1E1E6; }
+
+        .btn-limpar {
+            margin-top: 15px; width: 100%; padding: 10px; 
+            background: transparent; border: none;
+            color: var(--danger); font-size: 12px; font-weight: 500; 
+            cursor: pointer; transition: opacity 0.2s;
+        }
+        .btn-limpar:hover { opacity: 0.7; }
+
+        /* --- PREVIEW AREA --- */
+        .preview-area {
+            background-color: #D1D1D6;
+            padding: 40px;
+            overflow-y: auto;
+            display: block; 
+            text-align: center;
+        }
+
+        /* --- DOCUMENT TYPOGRAPHY --- */
+        .paper-page {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            height: auto !important;
+            padding: 2.5cm 3cm;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            margin: 0 auto 40px auto;
+            position: relative;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            color: #000;
+            line-height: 1.6;
+            text-align: justify;
+            -webkit-font-smoothing: auto;
+            -moz-osx-font-smoothing: auto;
+            hyphens: auto;
+        }
+
+        .paper-page h2 {
+            font-size: 14pt; text-align: center; text-transform: uppercase; font-weight: bold; margin-bottom: 30pt; margin-top: 0;
+        }
+        .paper-page h3 {
+            font-size: 12pt; text-transform: uppercase; font-weight: bold; margin-top: 24pt; margin-bottom: 12pt; text-align: left;
+        }
+        .paper-page p {
+            margin-bottom: 12pt; text-indent: 2cm; margin-top: 0;
+        }
+        .paper-page p.no-indent { text-indent: 0 !important; }
+        .paper-page .center-text { text-align: center; text-indent: 0 !important; }
+        
+        .signature-block { margin-top: 60px; text-align: center; page-break-inside: avoid; }
+        .signature-line { width: 60%; border-top: 1px solid #000; margin: 0 auto 5px auto; }
+
+        /* --- UTILS --- */
+        .fab-pdf {
+            position: fixed; top: 24px; right: 32px;
+            background-color: var(--danger); color: white;
+            padding: 10px 24px; border-radius: 24px;
+            font-weight: 600; font-size: 13px;
+            box-shadow: 0 4px 12px rgba(255, 59, 48, 0.4);
+            border: none; cursor: pointer; z-index: 100;
+            display: flex; align-items: center; gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .fab-pdf:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(255, 59, 48, 0.5); }
+
+        .legal-footer {
+            max-width: 210mm; margin: 0 auto 40px auto; font-family: -apple-system, sans-serif;
+            font-size: 10px; color: #666; text-align: justify; line-height: 1.4;
+        }
+        .legal-footer h5 { text-align: center; margin-bottom: 10px; font-weight: 700; color: #333; }
+        .legal-footer p { margin-bottom: 8px; }
+
+        .hidden { display: none; }
+        .dependentes-box { background: var(--input-bg); padding: 15px; border-radius: var(--radius-m); margin-top: 15px; border: 1px solid rgba(0,0,0,0.05); }
+
+        /* --- MOBILE RESPONSIVE FIX (AQUI ESTÁ A CORREÇÃO CRÍTICA) --- */
+        @media (max-width: 1000px) {
+            body { 
+                height: auto; 
+                overflow: auto; /* Libera rolagem da página no mobile */
+            }
+            .app-container { 
+                grid-template-columns: 1fr; 
+                height: auto; 
+                overflow: visible; 
+                display: block; 
+            }
+            .sidebar { 
+                height: auto; 
+                overflow: visible; 
+                border-right: none;
+            }
+            .sidebar-scroll {
+                flex: none;
+                height: auto;
+                overflow: visible;
+                padding-bottom: 0;
+            }
+            .action-bar {
+                position: sticky; 
+                bottom: 0;
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            }
+            .paper-page { width: 100%; padding: 2cm; margin-bottom: 20px; }
+            .fab-pdf { top: auto; bottom: 20px; right: 20px; }
+        }
+
+        /* --- IMPRESSÃO --- */
+        .page-break { display: block; border-top: 1px dashed #ccc; margin: 20px 0; padding-top: 20px; color: #ccc; font-size: 10px; text-align: center; }
+        @media print {
+            @page { size: A4; margin: 2cm; }
+            body { background: white; height: auto; overflow: visible; }
+            .sidebar, .fab-pdf, .legal-footer, .page-break { display: none !important; }
+            .app-container { display: block; height: auto; overflow: visible; }
+            .preview-area { padding: 0; background: white; display: block; }
+            .paper-page { box-shadow: none; margin: 0; width: 100%; min-height: auto; padding: 0; }
+            .page-break { page-break-before: always; border: none; height: 0; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="fab-pdf" onclick="imprimirPDF()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        BAIXAR PDF
+    </button>
+
+    <div class="app-container">
+        
+        <div class="sidebar">
+            <div class="sidebar-scroll">
+                <div class="brand-header">
+                    <img src="desinservicelogo.png" alt="Desinservice" onerror="this.style.display='none'">
+                </div>
+
+                <div class="guide-box">
+                    <h4>Guia de Uso</h4>
+                    <ul>
+                        <li>Preencha <strong>TODOS</strong> os campos do formulário abaixo.</li>
+                        <li>Clique no botão verde <strong>"GERAR CONTRATO"</strong> para visualizar.</li>
+                        <li>Clique no botão vermelho <strong>"BAIXAR PDF"</strong> para salvar.</li>
+                        <li><strong>IMPRESSÃO:</strong> Desmarque "Cabeçalhos e rodapés".</li>
+                        <li><strong class="text-alert">IMPORTANTE:</strong> Exija assinatura digital com SELFIE e DOCUMENTO.</li>
+                    </ul>
+                </div>
+
+                <form id="contractForm">
+                    <div class="menu-item is-open" id="box-empresa">
+                        <div class="menu-header" onclick="toggleSection('secEmpresa', 'box-empresa')">
+                            Empresa <span class="arrow">&#9660;</span>
+                        </div>
+                        <div id="secEmpresa" class="menu-content" style="display: block;">
+                            <div class="form-group"><label>Razão Social</label><input type="text" id="empNome" value="Desinservice - Saúde Ambiental"></div>
+                            <div class="form-group"><label>CNPJ</label><input type="text" id="empCNPJ"></div>
+                            <div class="form-group"><label>Endereço Completo</label><input type="text" id="empEnd" value="Eixo Secundário 3, Lote 5, número 520 - Distrito Industrial, Santa Maria - RS, 97037-430"></div>
+                            <div class="form-group"><label>E-mail Corporativo</label><input type="email" id="empEmail" placeholder="rh@desinservice.com.br"></div>
+                            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ddd; margin-bottom: 10px;"><label style="color:#000;">Representante Legal</label></div>
+                            <div class="form-group"><input type="text" id="repNome" placeholder="Nome Completo"></div>
+                            <div class="form-group"><input type="text" id="repNac" value="brasileiro(a)" placeholder="Nacionalidade"></div>
+                            <div class="form-group"><input type="text" id="repEst" placeholder="Estado Civil"></div>
+                            <div class="form-group"><input type="text" id="repProf" placeholder="Profissão"></div>
+                            <div class="form-group"><input type="text" id="repCPF" placeholder="CPF"></div>
+                            <div class="form-group"><input type="text" id="repRG" placeholder="RG"></div>
+                            <div class="form-group"><input type="text" id="repEnd" placeholder="Endereço Residencial"></div>
+                        </div>
+                    </div>
+
+                    <div class="menu-item" id="box-colab">
+                        <div class="menu-header" onclick="toggleSection('secColab', 'box-colab')">
+                            Colaborador <span class="arrow">&#9660;</span>
+                        </div>
+                        <div id="secColab" class="menu-content">
+                            <div class="form-group"><label>Nome Completo</label><input type="text" id="funcNome"></div>
+                            <div class="form-group"><label>Nacionalidade</label><input type="text" id="funcNac" value="brasileiro(a)"></div>
+                            <div class="form-group"><label>Estado Civil</label><input type="text" id="funcEst"></div>
+                            <div class="form-group"><label>RG</label><input type="text" id="funcRG"></div>
+                            <div class="form-group"><label>CPF</label><input type="text" id="funcCPF"></div>
+                            <div class="form-group"><label>PIS/PASEP</label><input type="text" id="funcPIS"></div>
+                            <div class="form-group"><label>Nome da Mãe</label><input type="text" id="funcMae"></div>
+                            <div class="form-group"><label>Endereço Completo</label><input type="text" id="funcEnd"></div>
+                            <div class="form-group"><label>E-mail Pessoal</label><input type="email" id="funcEmail"></div>
+                            <div class="form-group"><label>Telefone Móvel</label><input type="text" id="funcTel"></div>
+                        </div>
+                    </div>
+
+                    <div class="menu-item" id="box-detalhes">
+                        <div class="menu-header" onclick="toggleSection('secDetalhes', 'box-detalhes')">
+                            Detalhes do Contrato <span class="arrow">&#9660;</span>
+                        </div>
+                        <div id="secDetalhes" class="menu-content">
+                            <div class="form-group">
+                                <label>Risco (Insalubridade/Periculosidade)</label>
+                                <select id="tipoRisco">
+                                    <option value="padrao">Padrão (Administrativo)</option>
+                                    <option value="insalubre_min">Insalubridade Mínima (10%)</option>
+                                    <option value="insalubre_med">Insalubridade Média (20%)</option>
+                                    <option value="insalubre_max">Insalubridade Máxima (40%)</option>
+                                    <option value="periculosidade">Periculosidade (30%)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Modalidade</label>
+                                <select id="tipoModalidade">
+                                    <option value="presencial">Presencial</option>
+                                    <option value="teletrabalho">Teletrabalho / Home Office</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Função (Nome)</label><input type="text" id="cargo"></div>
+                            <div class="form-group"><label>CBO (Número)</label><input type="text" id="cboNum"></div>
+                            <div class="form-group"><label>Descrição Atividades</label><textarea id="cboDesc" rows="3"></textarea></div>
+                            <div class="form-group"><label>Salário Bruto (R$)</label><input type="text" id="salario"></div>
+                            <div class="form-group"><label>Local do Serviço</label><input type="text" id="localServico" placeholder="Se diferente da sede"></div>
+                            <div class="form-group"><label>Início</label><input type="date" id="dtInicio"></div>
+                            <div class="form-group"><label>Fim 1ª Exp. (30 dias)</label><input type="date" id="dtFim1"></div>
+                            <div class="form-group"><label>Início 2ª Exp.</label><input type="date" id="dtIni2"></div>
+                            <div class="form-group"><label>Fim 2ª Exp. (60 dias)</label><input type="date" id="dtFim2"></div>
+                        </div>
+                    </div>
+
+                    <div class="menu-item" id="box-assinatura">
+                        <div class="menu-header" onclick="toggleSection('secAssinatura', 'box-assinatura')">
+                            Assinatura & Local <span class="arrow">&#9660;</span>
+                        </div>
+                        <div id="secAssinatura" class="menu-content">
+                            <div class="form-group"><label>Cidade</label><input type="text" id="cidadeAssinatura" placeholder="Ex: Santa Maria/RS"></div>
+                            <div class="form-group"><label>Data</label><input type="date" id="dtAssinatura"></div>
+                        </div>
+                    </div>
+
+                    <div class="menu-item" id="box-anexos">
+                        <div class="menu-header" onclick="toggleSection('secAnexos', 'box-anexos')">
+                            Anexos e Decisões <span class="arrow">&#9660;</span>
+                        </div>
+                        <div id="secAnexos" class="menu-content">
+                            <div class="form-group">
+                                <label>Desconto Sindical</label>
+                                <select id="selSindical"><option value="nao">NÃO AUTORIZO</option><option value="sim">AUTORIZO</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Vale Transporte</label>
+                                <select id="selVT"><option value="nao">NÃO VOU UTILIZAR</option><option value="sim">VOU UTILIZAR</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Possui Dependentes?</label>
+                                <select id="selDep" onchange="toggleDependentes()"><option value="nao">NÃO</option><option value="sim">SIM</option></select>
+                            </div>
+                            
+                            <div id="boxDependentes" class="dependentes-box hidden">
+                                <div class="form-group">
+                                    <label style="color:var(--text-primary);">Quantidade de Dependentes</label>
+                                    <input type="number" id="qtdDep" value="1" min="1" max="10" onchange="renderizarCamposDependentes()" onkeyup="renderizarCamposDependentes()">
+                                </div>
+                                <div id="containerDependentes"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-limpar" onclick="limparTudo()">Limpar Tudo e Reiniciar</button>
+                </form>
+            </div><div class="action-bar">
+                <button class="btn-primary" onclick="gerar('completo')">GERAR CONTRATO</button>
+                <div class="btn-group">
+                    <button class="btn-secondary" onclick="gerar('anexo1')">Sindical</button>
+                    <button class="btn-secondary" onclick="gerar('anexo2')">Resp.</button>
+                    <button class="btn-secondary" onclick="gerar('anexo3')">Sigilo</button>
+                    <button class="btn-secondary" onclick="gerar('anexo4')">Compliance</button>
+                    <button class="btn-secondary" onclick="gerar('anexo5')">LGPD</button>
+                    <button class="btn-secondary" onclick="gerar('anexo6')">VT</button>
+                    <button class="btn-secondary" onclick="gerar('anexo7')">Dep.</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="preview-container" class="preview-area">
+             <div class="paper-page" id="documento-final">
+                <div style="text-align: center; color: #999; padding-top: 100px;">
+                    <svg width="64" height="64" fill="none" stroke="#D1D1D6" viewBox="0 0 24 24" style="margin: 0 auto 20px auto; display:block;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <h3 style="font-weight: 600; color: #333; margin-bottom: 10px;">Aguardando Dados</h3>
+                    <p style="font-size: 14px; text-indent: 0; color: #86868B;">Preencha o formulário e clique em<br><strong style="color: var(--brand-color);">"GERAR CONTRATO"</strong></p>
+                </div>
+             </div>
+             
+             <div class="legal-footer">
+                <h5>TERMOS DE USO E LICENÇA DE SOFTWARE JURÍDICO (PRIVATE LABEL)</h5>
+                <p><strong>1. PROPRIEDADE INTELECTUAL E AUTORIA:</strong> Esta plataforma de automação documental ("Software") constitui obra intelectual de titularidade exclusiva do advogado Raonny Canabarro Costa (OAB/RS 102.418). O código-fonte, a lógica de programação e a estrutura de dados não integram, sob nenhuma hipótese, o patrimônio do escritório de advocacia intermediador ou da empresa contratante, sendo protegidos pela Lei de Direitos Autorais e de Software.</p>
+                <p><strong>2. LICENÇA INTUITU PERSONAE E CONDIÇÃO RESOLUTIVA:</strong> A concessão de uso desta ferramenta é realizada em caráter temporário, precário e personalíssimo à empresa Desinservice - Saúde Ambiental. A validade desta licença está estritamente condicionada à permanência do advogado autor como responsável técnico jurídico da conta. A desvinculação do advogado Raonny Canabarro Costa da prestação de serviços, por qualquer motivo, acarreta a revogação imediata e automática desta licença de uso, tornando a utilização do software ilegal e passível de reparação por perdas e danos e violação de propriedade intelectual.</p>
+                <p><strong>3. NATUREZA DA FERRAMENTA E LIMITAÇÃO DE RESPONSABILIDADE:</strong> Este software é uma ferramenta de meio, destinada à automação de rotinas, e não substitui a análise jurídica casuística. O desenvolvedor NÃO SE RESPONSABILIZA por erros materiais, omissões, dados incorretos ou inconsistências inseridas pelo operador do sistema. A responsabilidade pela conferência da veracidade dos dados e pela adequação legal final do documento impresso é exclusiva do usuário emissor.</p>
+                <p><strong>4. OBSOLESCÊNCIA TECNOLÓGICA E LEGAL:</strong> As minutas e regras lógicas deste sistema refletem a legislação vigente na data de sua última compilação (Dezembro/2025). Não há funcionalidade de atualização automática. É dever exclusivo da Contratante solicitar manutenções corretivas sempre que houver alterações na CLT ou nas Convenções Coletivas da categoria. O uso de versões desatualizadas é de risco integral da empresa usuária.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+    // --- LÓGICA DE UI E GERAÇÃO ---
+    
+    function toggleSection(contentId, containerId) {
+        var allContents = document.querySelectorAll('.menu-content');
+        var allContainers = document.querySelectorAll('.menu-item');
+        var content = document.getElementById(contentId);
+        var container = document.getElementById(containerId);
+        
+        if (content.style.display === 'block') {
+            content.style.display = 'none';
+            container.classList.remove('is-open');
+            return; 
+        }
+        allContents.forEach(function(el) { el.style.display = 'none'; });
+        allContainers.forEach(function(el) { el.classList.remove('is-open'); });
+        content.style.display = 'block';
+        container.classList.add('is-open');
+    }
+
+    function limparTudo() {
+        if (confirm("Deseja realmente reiniciar o formulário?")) {
+            document.getElementById("contractForm").reset();
+            toggleSection('secEmpresa', 'box-empresa');
+            document.getElementById('containerDependentes').innerHTML = '';
+            var doc = document.getElementById('documento-final');
+            doc.innerHTML = '<div style="text-align: center; color: #999; padding-top: 100px;"><svg width="64" height="64" fill="none" stroke="#D1D1D6" viewBox="0 0 24 24" style="margin: 0 auto 20px auto; display:block;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg><h3 style="font-weight: 600; color: #333; margin-bottom: 10px;">Aguardando Dados</h3></div>';
+        }
+    }
+
+    function toggleDependentes() {
+        var sel = document.getElementById('selDep');
+        var box = document.getElementById('boxDependentes');
+        box.style.display = (sel.value === 'sim') ? 'block' : 'none';
+        if (sel.value === 'sim' && document.getElementById('containerDependentes').innerHTML === '') {
+            renderizarCamposDependentes();
+        }
+    }
+
+    function renderizarCamposDependentes() {
+        var qtd = document.getElementById('qtdDep').value;
+        if(qtd < 1) qtd = 1;
+        var container = document.getElementById('containerDependentes');
+        var html = '';
+        for(var i = 1; i <= qtd; i++) {
+            html += `
+            <div style="border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px;">
+                <label style="color: var(--brand-color); margin-bottom:5px;">Dependente ${i}</label>
+                <input type="text" id="depNome_${i}" placeholder="Nome Completo" class="form-group" style="margin-bottom:8px">
+                <input type="date" id="depNasc_${i}" class="form-group" style="margin-bottom:8px">
+                <input type="text" id="depCPF_${i}" placeholder="CPF" class="form-group" style="margin-bottom:8px">
+                <input type="text" id="depPar_${i}" placeholder="Grau de Parentesco" class="form-group" style="margin-bottom:8px">
+                <input type="text" id="depFins_${i}" placeholder="Fins (IRRF / Sal. Fam)" class="form-group">
+            </div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    function g(id) {
+        var el = document.getElementById(id);
+        return (!el || !el.value) ? "____________________" : el.value;
+    }
+
+    function dataShort(id) {
+        var el = document.getElementById(id);
+        if(!el || !el.value) return "__/__/____";
+        try { var p = el.value.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; } catch(e) { return "__/__/____"; }
+    }
+
+    function dataExtenso() {
+        var el = document.getElementById('dtAssinatura');
+        if(!el || !el.value) return "_______ de ________ de 202[x]";
+        var meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        var d = new Date(el.value);
+        var dataCorreta = new Date(d.getTime() + (d.getTimezoneOffset() * 60000));
+        return dataCorreta.getDate() + " de " + meses[dataCorreta.getMonth()] + " de " + dataCorreta.getFullYear();
+    }
+
+    function imprimirPDF() {
+        var doc = document.getElementById('documento-final');
+        if(doc.innerText.includes("Aguardando Dados")) {
+            alert("Clique em GERAR CONTRATO primeiro.");
+            return;
+        }
+        alert("⚠️ ATENÇÃO: Na janela de impressão, desmarque 'Cabeçalhos e rodapés' para o documento sair limpo.");
+        window.print();
+    }
+
+    function gerar(tipo) {
+        try {
+            var emp = {
+                nome: g('empNome'), cnpj: g('empCNPJ'), end: g('empEnd'), email: g('empEmail'),
+                repNome: g('repNome'), repNac: g('repNac'), repEst: g('repEst'), 
+                repProf: g('repProf'), repCPF: g('repCPF'), repRG: g('repRG'), repEnd: g('repEnd')
+            };
+            var func = {
+                nome: g('funcNome'), nac: g('funcNac'), est: g('funcEst'), 
+                rg: g('funcRG'), cpf: g('funcCPF'), pis: g('funcPIS'), 
+                mae: g('funcMae'), end: g('funcEnd'), email: g('funcEmail'), tel: g('funcTel')
+            };
+            var cont = {
+                cargo: g('cargo'), cbo: g('cboNum'), desc: g('cboDesc'), sal: g('salario'),
+                local: g('localServico'), dtIni: dataShort('dtInicio'), 
+                dtFim1: dataShort('dtFim1'), dtIni2: dataShort('dtIni2'), dtFim2: dataShort('dtFim2')
+            };
+            var assinatura = {
+                cidade: g('cidadeAssinatura'),
+                data: dataExtenso()
+            };
+
+            var tipoRisco = document.getElementById('tipoRisco').value;
+            var tipoModalidade = document.getElementById('tipoModalidade').value;
+
+            var textoLocal = (tipoModalidade === 'teletrabalho') 
+                ? `preponderantemente fora das dependências do empregador, em regime de Teletrabalho (Home Office), observando-se o disposto no Art. 75-B da CLT, sendo que o comparecimento eventual à sede não descaracteriza o regime`
+                : `no endereço ${(cont.local !== "____________________" ? cont.local : emp.end)}`;
+
+            var textoRemuneracao = "";
+            if(tipoRisco === 'padrao') {
+                textoRemuneracao = `2.1 A EMPREGADORA obriga-se a remunerar o EMPREGADO, mensalmente o valor de R$ ${cont.sal} brutos a ser pago até o 5° (quinto) dia útil do mês posterior ao mês trabalhado, nos termos do art. 459, parágrafo 1° da CLT.`;
+            } else {
+                var textoAdicional = "";
+                if(tipoRisco === 'periculosidade') textoAdicional = `acrescido do <strong>ADICIONAL DE PERICULOSIDADE de 30% (trinta por cento)</strong> calculado sobre o salário base, totalizando a remuneração mensal, enquanto perdurar a exposição ao risco.`;
+                else {
+                    var grau = (tipoRisco === 'insalubre_min') ? "MÍNIMO (10%)" : (tipoRisco === 'insalubre_med') ? "MÉDIO (20%)" : "MÁXIMO (40%)";
+                    textoAdicional = `acrescido do <strong>ADICIONAL DE INSALUBRIDADE em GRAU ${grau}</strong>, calculado sobre o salário mínimo vigente (salvo estipulação diversa em convenção coletiva), enquanto perdurar a exposição aos agentes nocivos.`;
+                }
+                textoRemuneracao = `2.1 A EMPREGADORA obriga-se a remunerar o EMPREGADO com o salário base mensal de R$ ${cont.sal}, ${textoAdicional} O pagamento ocorrerá até o 5° (quinto) dia útil do mês posterior ao mês trabalhado, nos termos do art. 459, parágrafo 1° da CLT.`;
+            }
+
+            var textoJornada = "";
+            if(tipoRisco.includes('insalubre')) {
+                 textoJornada = `3.1 O EMPREGADO cumprirá jornada de até 44 (quarenta e quatro) horas semanais, distribuídas em dias úteis, com intervalo para repouso e alimentação não computados na jornada, observado o mínimo legal previsto no art. 71 da CLT.<br>3.2 Em virtude da atividade insalubre, <strong>fica vedada a prorrogação da jornada de trabalho (horas extras)</strong> sem a prévia licença das autoridades competentes em matéria de higiene do trabalho, conforme art. 60 da CLT, salvo se houver regime de compensação ou escala autorizado em convenção coletiva (ex: 12x36).`;
+            } else {
+                 textoJornada = `3.1 O EMPREGADO cumprirá jornada de até 44 (quarenta e quatro) horas semanais, distribuídas em dias úteis, com intervalo para repouso e alimentação não computados na jornada, observado o mínimo legal previsto no art. 71 da CLT.<br>3.2 A duração do trabalho não deverá ser superior a 8 (oito) horas diárias e 44 (quarenta e quatro) semanais, nos termos do art. 58 da CLT c/c art. 7º, XIII, da CF/88, salvo hipóteses de horas extras e compensação válidas, previamente autorizadas pela EMPREGADORA.`;
+            }
+
+            var xSindSim = (document.getElementById('selSindical').value === 'sim') ? "X" : "&nbsp;&nbsp;";
+            var xSindNao = (document.getElementById('selSindical').value === 'nao') ? "X" : "&nbsp;&nbsp;";
+            var xVTSim = (document.getElementById('selVT').value === 'sim') ? "X" : "&nbsp;&nbsp;";
+            var xVTNao = (document.getElementById('selVT').value === 'nao') ? "X" : "&nbsp;&nbsp;";
+            
+            var depStatus = document.getElementById('selDep').value;
+            var xDepNao = (depStatus === 'nao') ? "X" : "&nbsp;&nbsp;";
+            var xDepSim = (depStatus === 'sim') ? "X" : "&nbsp;&nbsp;";
+            
+            var listaDependentes = [];
+            if(depStatus === 'sim') {
+                var qtd = document.getElementById('qtdDep').value;
+                for(var i=1; i<=qtd; i++) {
+                    var elNome = document.getElementById('depNome_'+i);
+                    if(elNome) {
+                        listaDependentes.push({
+                            nome: g('depNome_'+i),
+                            nasc: dataShort('depNasc_'+i),
+                            cpf: g('depCPF_'+i),
+                            par: g('depPar_'+i),
+                            fins: g('depFins_'+i)
+                        });
+                    }
+                }
+            }
+
+            // HTML TEMPLATES - COM CLASSES CSS MELHORADAS
+            var tContrato = `
+<h2>CONTRATO INDIVIDUAL DE TRABALHO</h2>
+<h3>DAS PARTES:</h3>
+<p>${func.nome}, ${func.nac}, ${func.est}, RG ${func.rg}, CPF ${func.cpf}, PIS/PASEP ${func.pis}, CTPS Digital (CPF), portador do e-mail ${func.email} e telefone móvel ${func.tel}, filho de ${func.mae}, residente ${func.end}, doravante denominada <b>EMPREGADO</b>.</p>
+<p>${emp.nome}, Inscrita no CNPJ sob o número ${emp.cnpj} e com sede estabelecida na ${emp.end}, doravante denominada <b>EMPREGADORA</b> e neste ato representado na forma de seus atos constitutivos por sua representante legal ${emp.repNome}, ${emp.repNac}, ${emp.repEst}, ${emp.repProf}, inscrito no Cadastro de Pessoas Físicas sob o número ${emp.repCPF} e no Registro Geral sob o número ${emp.repRG}, residente e domiciliado na ${emp.repEnd}.</p>
+<p>Decidem, na melhor forma de direito, celebrar o presente CONTRATO INDIVIDUAL DE TRABALHO, que reger-se-á mediante as cláusulas e condições seguintes:</p>
+
+<h3>CLÁUSULA PRIMEIRA – DO OBJETO:</h3>
+<p class="no-indent">1.1 O presente contrato tem por objeto a prestação, pelo EMPREGADO, dos serviços inerentes à função de <b>${cont.cargo}</b>, CBO ${cont.cbo} ${textoLocal}, ficando ajustado que poderá exercer outras funções que sejam compatíveis com o cargo, nos diversos setores da EMPREGADORA, sem que isto signifique alteração contratual.</p>
+<p class="no-indent">1.2 Dentre as atividades compatíveis à função do EMPREGADO estão as previstas:</p>
+<p class="no-indent">1.2.1 ${cont.desc}.</p>
+<p class="no-indent">1.3 As atividades serão desempenhadas prioritariamente de forma presencial na sede da EMPREGADORA, podendo haver, de forma eventual e não habitual, a realização de tarefas remotas vinculadas à função, sem caracterizar regime de teletrabalho nos termos dos arts. 75-A e seguintes da CLT.</p>
+
+<h3>CLÁUSULA SEGUNDA – DA REMUNERAÇÃO:</h3>
+<p class="no-indent">${textoRemuneracao}</p>
+<p class="no-indent">2.2 As despesas realizadas pelo EMPREGADO para a execução dos serviços serão reembolsadas mediante apresentação de notas fiscais e relatório de despesas aprovado, vedado o pagamento de valores fixos a título de ajuda de custo sem comprovação.</p>
+<p class="no-indent">2.3 Desde que previamente autorizadas, as horas extras serão pagas de acordo com a legislação vigente.</p>
+
+<h3>CLÁUSULA TERCEIRA – DA JORNADA DE TRABALHO:</h3>
+<p class="no-indent">${textoJornada}</p>
+
+<h3>CLÁUSULA QUARTA – DA TRANSFERÊNCIA:</h3>
+<p class="no-indent">4.1 A EMPREGADORA é vedado transferir o empregado, sem a sua anuência para localidade diversa da que resultar deste contrato de trabalho, não se considerando transferência a que não acarretar a necessidade de mudança de domicílio do empregado.</p>
+<p class="no-indent">4.2 Não se compreende na proibição da cláusula anterior, se o EMPREGADO vier a exercer cargo de confiança ou se ocorrer a extinção do estabelecimento em que trabalhar o EMPREGADO.</p>
+<p class="no-indent">4.3 Em caso de necessidade de serviço a EMPREGADORA poderá transferir o EMPREGADO para localidade diversa da que resultar do contrato, não obstante as restrições da cláusula anterior, mas, nesse caso, ficará obrigada a um pagamento suplementar de 25% (vinte e cinco por cento) dos salários que o EMPREGADO percebia naquela localidade, enquanto durar essa situação.</p>
+<p class="no-indent">4.4 As despesas dessas transferências correrão por conta da EMPREGADORA.</p>
+
+<h3>CLÁUSULA QUINTA – DO PRAZO:</h3>
+<p class="no-indent">5.1 O presente contrato é celebrado a título de experiência, pelo prazo de 30 (trinta dias), iniciando-se em <b>${cont.dtIni}</b>, terminando em <b>${cont.dtFim1}</b>. Terminado o prazo inicial mencionado, caso não seja dada por extinta a contratação, será a mesma prorrogada por mais 60 dias (sessenta dias), iniciando-se em <b>${cont.dtIni2}</b> terminando em <b>${cont.dtFim2}</b>.</p>
+<p class="no-indent">5.2 A ocorrência de afastamentos legais ou previdenciários suspenderá o decurso do período de experiência, retomando-se a contagem do prazo tão logo cessada a causa de suspensão, nos termos da legislação aplicável.</p>
+<p class="no-indent">5.3 Vigorando o contrato após o período experimental, transformar-se-á em contrato por prazo indeterminado, permanecendo inalteradas as demais cláusulas.</p>
+
+<h3>CLÁUSULA SEXTA – DOS DESCONTOS:</h3>
+<p class="no-indent">6.1 A EMPREGADORA é vedado efetuar qualquer desconto nos salários do empregado, salvo quando este resultar de adiantamentos, de dispositivos de lei ou de contrato coletivo, nos termos do art. 462 da CLT.</p>
+<p class="no-indent">6.2 Sempre que o EMPREGADO causar prejuízo à EMPREGADORA em decorrência de dolo, ficará obrigado a ressarcir os danos causados, podendo haver desconto salarial apenas nas hipóteses previstas no art. 462, §1º, da CLT ou mediante acordo escrito específico.</p>
+<p class="no-indent">6.3 O EMPREGADO autoriza/não autoriza, por expressa declaração em anexo, a EMPREGADORA a descontar de sua folha de pagamento a contribuição sindical de sua categoria, nos termos do art. 545 da CLT.</p>
+
+<h3>CLÁUSULA SÉTIMA – DA RESCISÃO:</h3>
+<p class="no-indent">7.1 Durante o período de experiência, a rescisão antecipada, sem justo motivo, por qualquer das partes, sujeita-se ao disposto nos arts. 479 e 480 da CLT, conforme o caso.</p>
+<p class="no-indent">7.2 Concluído o período de experiência sem rescisão e convertendo-se este contrato em prazo indeterminado, a parte que, sem justo motivo, desejar rescindi-lo deverá avisar a outra com antecedência mínima de 30 (trinta) dias, nos termos do art. 487 da CLT.</p>
+<p class="no-indent">7.3 A falta de aviso-prévio por parte da EMPREGADORA dá ao EMPREGADO o direito aos salários correspondentes ao prazo do aviso, garantida a integração desse período ao tempo de serviço.</p>
+<p class="no-indent">7.3.1. A falta de aviso-prévio por parte do EMPREGADO dá à EMPREGADORA o direito de descontar os salários correspondentes ao prazo respectivo.</p>
+<p class="no-indent">7.4 Constituem justa causa para a rescisão do contrato de trabalho pela EMPREGADORA, nos termos do art. 482 da CLT:</p>
+<p class="no-indent">a) Ato de improbidade;</p>
+<p class="no-indent">b) Incontinência de conduta ou mau procedimento;</p>
+<p class="no-indent">c) Negociação habitual por contra própria ou alheia sem permissão do empregador, e quando constituir ato de concorrência à empresa para a qual trabalha o empregado, ou for prejudicial ao serviço;</p>
+<p class="no-indent">d) Condenação criminal do empregado, passada em julgado, caso não tenha havido a suspensão da execução da pena;</p>
+<p class="no-indent">e) Desídia no desempenho das respectivas funções;</p>
+<p class="no-indent">f) Embriaguez habitual ou em serviço;</p>
+<p class="no-indent">g) Violação de segredo da empresa;</p>
+<p class="no-indent">h) Ato de indisciplina ou de insubordinação;</p>
+<p class="no-indent">i) Abandono do emprego;</p>
+<p class="no-indent">j) Ato lesivo contra a honra ou a boa fama praticado no serviço contra qualquer pessoa, ou ofensas físicas, nas mesmas condições, salvo em caso de legítima defesa, própria ou de outrem;</p>
+<p class="no-indent">k) Ato lesivo da honra ou da boa fama ou ofensas físicas praticadas contra o empregador e superiores hierárquicos, salvo em caso de legitima defesa própria ou de outrem;</p>
+<p class="no-indent">l) Prática constante de jogos de azar;</p>
+<p class="no-indent">m) Perda da habilitação ou dos requisitos estabelecidos em lei para o exercício da profissão, em decorrência de conduta dolosa do empregado;</p>
+<p class="no-indent">n) Prática, devidamente comprovada em inquérito administrativo, de atos atentatórios à segurança nacional.</p>
+<p class="no-indent">7.5 O EMPREGADO poderá considerar rescindido o contrato e pleitear a devida indenização, configurando a rescisão indireta, nos termos do artigo 483 da CLT quando:</p>
+<p class="no-indent">a) Forem exigidos serviços superiores as suas forças, defesos por lei, contrários aos bons costumes, ou alheios ao contrato;</p>
+<p class="no-indent">b) For tratado pelo empregador ou por seus superiores hierárquicos com rigor excessivo;</p>
+<p class="no-indent">c) Correr perigo manifesto de mal considerável;</p>
+<p class="no-indent">d) Não cumprir o empregador as obrigações do contrato;</p>
+<p class="no-indent">e) Praticar o empregador ou seus prepostos, contra ele ou pessoas de sua família, ato lesivo da honra ou boa fama;</p>
+<p class="no-indent">f) O empregador ou seus prepostos ofenderem-no fisicamente, salvo em caso de legitima defesa própria ou de outrem;</p>
+<p class="no-indent">g) O empregador reduzir o seu trabalho, sendo este por peça ou tarefa, de forma a afetar sensivelmente a importância dos salários;</p>
+<p class="no-indent">h) O empregador quebrar o sigilo de confidencialidade;</p>
+<p class="no-indent">7.6 O contrato de trabalho poderá ser extinto por acordo entre o empregado e empregadora, caso em que serão devidas as seguintes verbas trabalhistas:</p>
+<p class="no-indent">I. Por metade:</p>
+<p class="no-indent">a. O aviso prévio, se indenizado; e</p>
+<p class="no-indent">b. A indenização sobre o saldo do Fundo de Garantia do Tempo de Serviço, prevista no parágrafo 1 do artigo 18 da Lei n. 8036 de 11 de maio de 1990.</p>
+<p class="no-indent">II. Na integralidade, as demais verbas trabalhistas.</p>
+
+<h3>CLÁUSULA OITAVA – DO FORO:</h3>
+<p class="no-indent">8.1 As partes elegem o Foro da Comarca do local da prestação dos serviços para dirimir questões oriundas deste contrato.</p>
+
+<h3>CLÁUSULA NONA – DO SIGILO E CONFIDENCIALIDADE:</h3>
+<p class="no-indent">9.1 O EMPREGADO declara expressamente manter sigilo, tanto escrito como verbal, ou por qualquer outra forma, de todos os dados, informações científicas e técnicas e, sobre todos os materiais obtidos com sua participação, podendo incluir, mas não se limitando a: técnicas, desenhos, cópias, diagramas, modelos, fluxogramas, croquis, fotografias, programas de computador, processos, projetos, dentre outros, não podendo revelar, reproduzir, utilizar ou dar conhecimento, em hipótese alguma, a terceiros, de dados, informações ou materiais obtidos com sua participação, sem prévia análise da EMPREGADORA.</p>
+
+<h3>CLÁUSULA DÉCIMA – OBSERVÂNCIA AO MARCO CIVIL DA INTERNET E A LEI GERAL DE PROTEÇÃO DE DADOS PESSOAIS:</h3>
+<p class="no-indent">10.1 Pelo presente as partes declaram que no uso ou desenvolvimento de qualquer sistema observarão as disposições da Lei 13.709/18 que regulamenta a proteção de dados pessoais e da Lei 12.965/14 que regulamenta o marco civil da internet, em especial:</p>
+<p class="no-indent">10.1.1 A EMPREGADORA poderá tratar dados pessoais do EMPREGADO para fins de cumprimento de obrigação legal ou regulatória, execução do presente contrato, administração de benefícios e exercício regular de direitos, respeitando a legislação vigente.</p>
+<p class="no-indent">10.1.2 O tratamento observará a política de privacidade interna da EMPREGADORA e limites previstos na Lei nº 13.709/18.</p>
+<p class="no-indent">10.2 A não observância de qualquer disposição das referidas leis implicará na responsabilidade exclusiva do infrator.</p>
+<p class="no-indent">10.3. O EMPREGADO reconhece que o tratamento de seus dados pessoais poderá permanecer após o término do vínculo, pelo prazo necessário ao cumprimento de obrigações legais, inclusive trabalhistas, previdenciárias e fiscais.</p>
+
+<h3>CLÁUSULA DÉCIMA PRIMEIRA – DA PROPRIEDADE INTELECTUAL E INVENÇÕES:</h3>
+<p class="no-indent">11.1 Pertencem exclusivamente à EMPREGADORA toda e qualquer invenção, descoberta, aperfeiçoamento, modelo de utilidade, desenho industrial, software, código-fonte, método, processo, planilha complexa ou obra intelectual que o EMPREGADO venha a desenvolver durante a vigência do contrato, utilizando-se de recursos, dados, meios, materiais, instalações ou equipamentos da EMPREGADORA, ou ainda, durante o horário de trabalho.</p>
+<p class="no-indent">11.2 O EMPREGADO reconhece que tais criações decorrem da natureza dos serviços contratados, não lhe assistindo direito a qualquer remuneração adicional ou royalties.</p>
+
+<h3>CLÁUSULA DÉCIMA SEGUNDA – DO MONITORAMENTO E FERRAMENTAS DIGITAIS:</h3>
+<p class="no-indent">12.1 O EMPREGADO declara estar ciente de que o e-mail corporativo, computadores, celulares, tablets, acesso à internet e softwares fornecidos pela EMPREGADORA são ferramentas de trabalho de propriedade exclusiva da empresa, destinadas ao desempenho das funções, não havendo expectativa de privacidade em seu uso.</p>
+<p class="no-indent">12.2 A EMPREGADORA reserva-se o direito de monitorar, auditar e acessar o conteúdo dessas ferramentas a qualquer tempo, sem prévio aviso, para fins de segurança da informação e conformidade (compliance), sendo vedado o uso para fins pessoais ilícitos, pornográficos ou ofensivos.</p>
+
+<h3>CLÁUSULA DÉCIMA TERCEIRA – DO DIREITO DE IMAGEM:</h3>
+<p class="no-indent">13.1 O EMPREGADO autoriza, a título gratuito e em caráter irrevogável, o uso de sua imagem e voz em materiais institucionais, site corporativo, redes sociais (LinkedIn, Instagram, etc.), crachás e comunicações internas da EMPREGADORA, para fins exclusivos de divulgação das atividades da empresa, respeitada a moral e os bons costumes, durante a vigência do contrato e após seu término, sem que isso gere direito a indenização.</p>
+
+<h3>CLÁUSULA DÉCIMA QUARTA – DISPOSIÇÕES GERAIS:</h3>
+<p class="no-indent">14.1 Às situações omissas do presente contrato serão aplicadas as diretrizes da CLT, acordo coletivo e convenções trabalhistas vigentes.</p>
+<p>E por estarem justos e contratados, nos termos de sus respectivos interesses, mandaram as partes lavrarem o presente instrumento que assinam na presença de duas testemunhas para as finalidades de direito.</p>
+
+<div class="signature-block">
+    <p class="center-text">${assinatura.cidade}, ${assinatura.data}.</p>
+    <br><br>
+    <div class="signature-line"></div>
+    <p class="center-text"><b>${func.nome}</b><br>EMPREGADO</p>
+    <br><br>
+    <div class="signature-line"></div>
+    <p class="center-text"><b>${emp.nome}</b><br>EMPREGADORA</p>
+</div>
+`;
+
+            var tAnexo1 = `<div class="page-break"></div><h2>ANEXO 1 – DECLARAÇÃO DE CONCORDÂNCIA OU NÃO COM DESCONTOS SINDICAIS</h2><p>${func.nome}, ${func.nac}, ${func.est}, RG ${func.rg}, CPF ${func.cpf}, residente ${func.end}, doravante denominada EMPREGADO, declaro que ( <b>${xSindSim}</b> ) AUTORIZO / ( <b>${xSindNao}</b> ) NÃO AUTORIZO EXPRESSAMENTE meu empregador ${emp.nome}, Inscrita no CNPJ sob o número ${emp.cnpj} e com sede estabelecida na ${emp.end}, a realizar o desconto relativo a contribuição sindical minha categoria, nos termos do art. 545 da CLT diretamente em minha folha de pagamento.</p><div class="signature-block"><p class="center-text">${assinatura.cidade}, ${assinatura.data}.</p><br><br><div class="signature-line"></div><p class="center-text">Assinatura do empregado</p></div>`;
+            
+            var tAnexo2 = `<div class="page-break"></div><h2>ANEXO 2 - TERMO DE RESPONSABILIDADE</h2><p>${func.nome}, ${func.nac}, ${func.est}, RG ${func.rg}, CPF ${func.cpf}, residente ${func.end}, doravante denominada EMPREGADO, DECLARO, para fins de pleno exercício do trabalho junto a empresa ${emp.nome}, Inscrita no CNPJ sob o número ${emp.cnpj} e com sede estabelecida na ${emp.end}, que ME COMPROMETO a seguir todas as instruções repassadas pelo empregador, a fim de evitar doenças e acidentes de trabalho.<br>Nada mais a declarar, e ciente das responsabilidades pelas declarações presentes, firmo o presente termo de responsabilidade.</p><div class="signature-block"><p class="center-text">${assinatura.cidade}, ${assinatura.data}.</p><br><br><div class="signature-line"></div><p class="center-text">Assinatura do empregado</p></div>`;
+
+            var tAnexo3 = `<div class="page-break"></div><h2>ANEXO 3 TERMO DE SIGILO E CONFIDENCIALIDADE</h2><p>${func.nome}, ${func.nac}, ${func.est}, RG ${func.rg}, CPF ${func.cpf}, residente ${func.end}, doravante denominada EMPREGADO, neste ato designado como ADERENTE, se compromete, por intermédio do presente TERMO DE CONFIDENCIALIDADE E NÃO DIVULGAÇÃO, a não divulgar, sem autorização, quaisquer informações ou dados que teve acesso por meio do contrato de trabalho com a ${emp.nome}, Inscrita no CNPJ sob o número ${emp.cnpj} e com sede estabelecida na ${emp.end}, neste ato designada como TITULAR, em conformidade com as seguintes cláusulas e condições.</p>
+            <h3>CLAUSULA PRIMEIRA</h3><p class="no-indent">1.1 O presente termo contempla toda e qualquer informação obtida por força do contrato de trabalho firmado entre as partes relativo à ${emp.nome}, Inscrita no CNPJ sob o número ${emp.cnpj} em especial o acesso a:</p><p class="no-indent">I. Documentos, dados e informações confidenciais ou não, disponibilizados para fins de execução do contrato, tanto verbal, digital ou fisicamente disponibilizados, know-how;</p><p class="no-indent">II. Metodologias, estratégias, croquis, métodos, desenhos, especificações, tabelas, conceitos, softwares, carteira de clientes, processos, projetos, ferramentas de desenvolvimento de produtos e serviços, códigos ou quaisquer informações de natureza operacional, marketing, financeira, administrativa, contábil ou jurídica;</p><p class="no-indent">III. Outros dados e informações de qualquer natureza que direta ou indiretamente tenham relação com o ponto 1.1 da presente cláusula e que por ventura tenham sido conhecidos durante o período de vigência dos contratos.</p>
+            <h3>CLAUSULA SEGUNDA</h3><p class="no-indent">2.1 Declara que toda e qualquer informação a que tem ou teve conhecimento, recebe/recebeu ou teve/tem acesso é/foi utilizada exclusivamente com fins operacionais ao vínculo contratual que existe/existia entre as partes.</p><p class="no-indent">2.2 Declara que se compromete a não fornecer, repassar, informar, usar, distribuir, facilitar o acesso, copiar ou a que meio for compartilhar as informações com as quais tem/teve conhecimento relativo ao vínculo contratual que existe/existiu entre as partes.</p><p class="no-indent">2.3 O ADERENTE declara ainda que devolverá/devolveu ou destruirá/destruiu todo e qualquer material que tenha tido contato prévio, inclusive notas pessoais, registros de qualquer natureza, usados ou mantidos sob o seu controle ou posse ou compartilhado com empregados, prepostos ou prestadores de serviço ou fornecedores durante o período que esteve na relação de emprego descrita cláusula primeira item 1.1.</p><p class="no-indent">2.4 O ADERENTE declara estar ciente de que responderá civil e criminalmente por qualquer inconsistência nas informações e obrigações assumidas neste termo de confidencialidade, e compromete-se ainda a cumprir com todas as obrigações de não concorrência e confidencialidade de informações presentes tanto no contrato de trabalho.</p><p class="no-indent">2.5 O descumprimento desta cláusula sujeitará o infrator ao pagamento de indenização por perdas e danos materiais e morais, lucros cessantes e danos emergentes a serem apurados judicialmente, sem prejuízo da rescisão por Justa Causa.</p>
+            <h3>CLAUSULA TERCEIRA</h3><p class="no-indent">3.1 O presente documento passa a vigorar na data de sua assinatura e permanecerá vigente por um período mínimo de três (03) anos após o término da relação de vínculo trabalhista.</p>
+            <h3>CLAUSULA QUARTA</h3><p class="no-indent">4.1 O presente termo tem caráter irrevogável e irretratável, obrigando as partes e seus sucessores.</p><p class="no-indent">4.2 As partes elegem o Foro da Comarca do local da prestação dos serviços para dirimir questões oriundas deste contrato, com a expressa renúncia de qualquer outro, por mais privilegiado que possa vir a ser.</p><p>E, por assim estarem justos e contratados assinam o presente pacto em vias digitais de igual teor e forma para que surta seus efeitos legais.</p><div class="signature-block"><p class="center-text">${assinatura.cidade}, ${assinatura.data}.</p><br><br><div class="signature-line"></div><p class="center-text">Assinatura do ADERENTE</p></div>`;
+
+            var tAnexo4 = `<div class="page-break"></div><h2>ANEXO 4 – DECLARAÇÃO EXPRESSA DO EMPREGADO COM A CONCORDÂNCIA COM O CÓDIGO DE ÉTICA E NORMAS DE COMPLIANCE</h2><p>${func.nome}, ${func.nac}, ${func.est}, RG ${func.rg}, CPF ${func.cpf}, residente ${func.end}, doravante denominada EMPREGADO, DECLARO EXPRESSAMENTE, para fins de pleno exercício do trabalho junto a empresa ${emp.nome}, Inscrita no CNPJ sob o número ${emp.cnpj} e com sede estabelecida na ${emp.end}, que tomei ciência do Código de Ética e normas de Compliance, da empresa, compreendi sua importância e as irei cumprir fielmente, estando ciente, inclusive que o descumprimento de tais normas podem ensejar a dispensa por justa causa, sem prejuízo das sanções cíveis e criminais.<br>Nada mais a declarar, e ciente das responsabilidades pelas declarações presentes, firmo o presente termo.</p><div class="signature-block"><p class="center-text">${assinatura.cidade}, ${assinatura.data}.</p><br><br><div class="signature-line"></div><p class="center-text">Assinatura do empregado</p></div>`;
+
+            var tAnexo5 = `<div class="page-break"></div><h2>ANEXO 5 – DECLARAÇÃO DE CIÊNCIA SOBRE O TRATAMENTO DE DADOS PESSOAIS</h2><p>${func.nome}, ${func.nac}, ${func.est}, RG ${func.rg}, CPF ${func.cpf}, residente ${func.end}, doravante denominada EMPREGADO, DECLARO, para fins de pleno exercício do trabalho junto à empresa ${emp.nome}, inscrita no CNPJ sob o nº ${emp.cnpj}, com sede na ${emp.end}, que:</p><p>(a) Estou ciente de que a EMPREGADORA realizará o tratamento de meus dados pessoais e, quando aplicável, de dados pessoais sensíveis, para fins de cumprimento de obrigações legais e regulatórias, execução do contrato de trabalho, administração de benefícios, segurança da informação e exercício regular de direitos, nos termos da Lei nº 13.709/2018.</p><p>(b) Reconheço que esse tratamento não se baseia em consentimento, mas nas hipóteses legais previstas na LGPD, em especial no art. 7º, incisos II, V e VI, e no art. 11, inciso II.</p><p>(c) Estou ciente de que meus dados poderão ser conservados após o término do vínculo, pelo prazo necessário ao cumprimento de obrigações legais, inclusive trabalhistas, previdenciárias e fiscais, pelo prazo mínimo de 5 (cinco) anos ou por período superior quando exigido por lei ou para resguardo de direitos da EMPREGADORA.</p><div class="signature-block"><p class="center-text">${assinatura.cidade}, ${assinatura.data}.</p><br><br><div class="signature-line"></div><p class="center-text">Assinatura do empregado</p></div>`;
+
+            var tAnexo6 = `<div class="page-break"></div><h2>ANEXO 6 – DECLARAÇÃO DE UTILIZAÇÃO DE VALE TRANSPORTE</h2><p>${func.nome}, ${func.nac}, ${func.est}, RG ${func.rg}, CPF ${func.cpf}, residente ${func.end}, doravante denominada EMPREGADO, DECLARO EXPRESSAMENTE, para fins de pleno exercício do trabalho junto a empresa ${emp.nome}, Inscrita no CNPJ sob o número ${emp.cnpj} e com sede estabelecida na ${emp.end}, que ( <b>${xVTSim}</b> ) VOU UTILIZAR TRANSPORTE PÚBLICO / ( <b>${xVTNao}</b> ) NÃO VOU UTILIZAR TRANSPORTE PÚBLICO para deslocamento de minha residência a meu local de trabalho, e estou ciente de que minha EMPREGADORA tem direito de reter percentual legal sobre o valor do vale transporte em minha folha de pagamento se o utilizar.</p><div class="signature-block"><p class="center-text">${assinatura.cidade}, ${assinatura.data}.</p><br><br><div class="signature-line"></div><p class="center-text">Assinatura do empregado</p></div>`;
+
+            var listaDepHTML = '';
+            if(listaDependentes.length > 0) {
+                listaDependentes.forEach(function(dep) {
+                    listaDepHTML += `
+                    <div style="margin-bottom:15px; border-bottom:1px dashed #ccc; padding-bottom:10px;">
+                        <p class="no-indent">Nome completo: <b>${dep.nome}</b><br>
+                        Data de nascimento: <b>${dep.nasc}</b><br>
+                        CPF: <b>${dep.cpf}</b><br>
+                        Grau de parentesco: <b>${dep.par}</b><br>
+                        Fins (IRRF / Sal. Fam): <b>${dep.fins}</b></p>
+                    </div>`;
+                });
+            } else {
+                listaDepHTML = '<p class="no-indent">Nenhum dependente informado.</p>';
+            }
+
+            var tAnexo7 = `<div class="page-break"></div><h2>ANEXO 7 – DECLARAÇÃO DE DEPENDENTES</h2><p>${func.nome}, ${func.nac}, ${func.est}, RG ${func.rg}, CPF ${func.cpf}, PIS/PASEP ${func.pis}, residente ${func.end}, doravante denominada EMPREGADO, DECLARO, para fins de cadastro interno, concessão de benefícios e cumprimento de obrigações trabalhistas, previdenciárias e fiscais, que:</p>
+            <h3>1. SITUAÇÃO DE DEPENDENTES</h3><p class="no-indent">( <b>${xDepNao}</b> ) NÃO POSSUO DEPENDENTES.</p><p class="no-indent">( <b>${xDepSim}</b> ) POSSUO OS SEGUINTES DEPENDENTES, cujos dados informo abaixo:</p>
+            ${listaDepHTML}
+            <h3>2. CIÊNCIA SOBRE A LEGISLAÇÃO APLICÁVEL</h3><p>Declaro estar ciente de que a caracterização de dependentes para fins de imposto de renda observará a legislação específica vigente, inclusive o Regulamento do Imposto de Renda e normas da Receita Federal do Brasil, podendo a EMPREGADORA exigir a apresentação de documentos comprobatórios sempre que necessário.</p>
+            <h3>3. ATUALIZAÇÃO DE INFORMAÇÕES</h3><p>Comprometo-me a comunicar, por escrito, à EMPREGADORA, qualquer alteração na condição dos dependentes acima informados (nascimento, óbito, casamento, separação, cessação de guarda, perda de dependência econômica ou qualquer outro fato relevante), no prazo máximo de 10 (dez) dias contados da ocorrência do fato.</p>
+            <h3>4. RESPONSABILIDADE PELAS INFORMAÇÕES</h3><p>Declaro serem verdadeiras todas as informações prestadas nesta declaração, assumindo integral responsabilidade civil, administrativa e, se for o caso, criminal por omissões ou dados inverídicos.</p><div class="signature-block"><p class="center-text">${assinatura.cidade}, ${assinatura.data}.</p><br><br><div class="signature-line"></div><p class="center-text">Assinatura do EMPREGADO</p></div>`;
+
+            var finalHTML = "";
+            if(tipo === 'completo') finalHTML = tContrato + tAnexo1 + tAnexo2 + tAnexo3 + tAnexo4 + tAnexo5 + tAnexo6 + tAnexo7;
+            else if(tipo === 'anexo1') finalHTML = tAnexo1;
+            else if(tipo === 'anexo2') finalHTML = tAnexo2;
+            else if(tipo === 'anexo3') finalHTML = tAnexo3;
+            else if(tipo === 'anexo4') finalHTML = tAnexo4;
+            else if(tipo === 'anexo5') finalHTML = tAnexo5;
+            else if(tipo === 'anexo6') finalHTML = tAnexo6;
+            else if(tipo === 'anexo7') finalHTML = tAnexo7;
+
+            if(finalHTML.startsWith('<div class="page-break"></div>')) {
+                finalHTML = finalHTML.replace('<div class="page-break"></div>', '');
+            }
+
+            var doc = document.getElementById('documento-final');
+            doc.innerHTML = finalHTML;
+
+        } catch(erro) {
+            alert("Erro ao gerar: " + erro.message);
+            console.error(erro);
+        }
+    }
+    </script>
+
+</body>
+</html>
